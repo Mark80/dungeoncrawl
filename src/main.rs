@@ -12,6 +12,7 @@ mod prelude {
 }
 
 use prelude::*;
+use std::ptr::addr_of_mut;
 
 pub struct State {
     pub map: Map,
@@ -20,9 +21,12 @@ pub struct State {
 
 impl State {
     pub fn new() -> Self {
+        let rnd = &mut RandomNumberGenerator::new();
+        let builder = MapBuilder::new(rnd);
+
         Self {
-            map: Map::new(),
-            player: Player::new(Point::new(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)),
+            map: builder.map,
+            player: Player::new(builder.player_start_point),
         }
     }
 }
