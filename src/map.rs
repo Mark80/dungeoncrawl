@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use std::ptr::addr_of_mut;
 
 const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
@@ -18,10 +17,23 @@ impl Map {
         ((SCREEN_WIDTH * y) + x) as usize
     }
 
-    pub fn coordinates_from_index(index: usize) -> (i32, i32) {
+    pub fn coordinates_from_index(index: usize) -> Point {
         let y = index as i32 / SCREEN_WIDTH;
         let x = index as i32 % SCREEN_WIDTH;
-        (x, y)
+        Point::new(x, y)
+    }
+
+    pub fn in_bounds(&self, point: Point) -> bool {
+        point.x >= 0 && point.y >= 0 && point.x <= SCREEN_WIDTH && point.y <= SCREEN_HEIGHT
+    }
+
+    pub fn can_enter_in_tile(&self, point: Point) -> bool {
+        let index = Map::index_from_coordinates(point.x, point.y);
+        self.in_bounds(point)
+            && match self.tiles[index] {
+                TileType::WALL => false,
+                TileType::Floor => true,
+            }
     }
 
     pub fn new() -> Self {
@@ -60,9 +72,17 @@ mod tests {
     }
     #[test]
     fn test_extrac_coordinates_from_index() {
-        assert_eq!(Map::coordinates_from_index(0), (0, 0));
-        assert_eq!(Map::coordinates_from_index(80), (0, 1));
-        assert_eq!(Map::coordinates_from_index(85), (5, 1));
-        assert_eq!(Map::coordinates_from_index(163), (3, 2));
+        assert_eq!(Map::coordinates_from_index(0), Point::new(0, 0));
+        assert_eq!(Map::coordinates_from_index(80), Point::new(0, 1));
+        assert_eq!(Map::coordinates_from_index(85), Point::new(5, 1));
+        assert_eq!(Map::coordinates_from_index(163), Point::new(3, 2));
+    }
+
+    #[test]
+    fn test_can_enter_in_tile() {
+        let mut map = Map::new();
+        map.tiles[0] = TileType::WALL;
+        assert_eq!(map.can_enter_in_tile(Point::new(0, 0)), false);
+        assert_eq!(map.can_enter_in_tile(Point::new(1, 0)), true);
     }
 }
