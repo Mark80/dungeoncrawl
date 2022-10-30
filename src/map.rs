@@ -13,8 +13,16 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn index_from_coordinates(x: i32, y: i32) -> usize {
-        ((SCREEN_WIDTH * y) + x) as usize
+    pub fn index_from_coordinates(p: Point) -> usize {
+        ((SCREEN_WIDTH * p.y) + p.x) as usize
+    }
+
+    pub fn try_index(&self, p: Point) -> Option<usize> {
+        if self.in_bounds(p) {
+            Some(Map::index_from_coordinates(p))
+        } else {
+            None
+        }
     }
 
     pub fn coordinates_from_index(index: usize) -> Point {
@@ -24,16 +32,12 @@ impl Map {
     }
 
     pub fn in_bounds(&self, point: Point) -> bool {
-        point.x >= 0 && point.y >= 0 && point.x <= SCREEN_WIDTH && point.y <= SCREEN_HEIGHT
+        point.x >= 0 && point.y >= 0 && point.x < SCREEN_WIDTH && point.y < SCREEN_HEIGHT
     }
 
     pub fn can_enter_in_tile(&self, point: Point) -> bool {
-        let index = Map::index_from_coordinates(point.x, point.y);
-        self.in_bounds(point)
-            && match self.tiles[index] {
-                TileType::WALL => false,
-                TileType::Floor => true,
-            }
+        let index = Map::index_from_coordinates(point);
+        self.in_bounds(point) && self.tiles[index] != TileType::WALL
     }
 
     pub fn new() -> Self {
@@ -45,7 +49,7 @@ impl Map {
     pub fn render(&self, ctx: &mut BTerm) {
         for y in 0..SCREEN_HEIGHT {
             for x in 0..SCREEN_WIDTH {
-                let index = Map::index_from_coordinates(x, y);
+                let index = Map::index_from_coordinates(Point::new(x, y));
                 let current_tile = self.tiles[index];
                 match current_tile {
                     TileType::Floor => {
@@ -66,9 +70,9 @@ mod tests {
 
     #[test]
     fn test_extrac_tile_index_from_coordinate() {
-        assert_eq!(Map::index_from_coordinates(0, 0), 0);
-        assert_eq!(Map::index_from_coordinates(20, 0), 20);
-        assert_eq!(Map::index_from_coordinates(0, 1), 80);
+        assert_eq!(Map::index_from_coordinates(Point::new(0, 0)), 0);
+        assert_eq!(Map::index_from_coordinates(Point::new(20, 0)), 20);
+        assert_eq!(Map::index_from_coordinates(Point::new(0, 1)), 80);
     }
     #[test]
     fn test_extrac_coordinates_from_index() {
