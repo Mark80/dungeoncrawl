@@ -12,7 +12,6 @@ mod prelude {
 }
 
 use prelude::*;
-use std::ptr::addr_of_mut;
 
 pub struct State {
     pub map: Map,
