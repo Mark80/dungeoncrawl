@@ -1,5 +1,5 @@
 use crate::prelude::*;
-const NUM_ROOMS: usize = 10;
+const NUM_ROOMS: usize = 20;
 
 pub struct MapBuilder {
     pub map: Map,
@@ -15,23 +15,11 @@ impl MapBuilder {
             player_start_point: Point::zero(),
         };
 
-        mb.fill(TileType::WALL);
+        mb.fill(TileType::Wall);
         mb.build_random_rooms(rng);
         mb.player_start_point = mb.rooms[0].center();
         mb.build_corridors(rng);
-        //mb.link_rooms();
         mb
-    }
-
-    fn link_rooms(&mut self) {
-        for i in 0..NUM_ROOMS - 1 {
-            self.apply_vertical_tunnel(self.rooms[i].y1, self.rooms[i + 1].y1, self.rooms[i].x1);
-            self.apply_horizontal_tunnel(
-                self.rooms[i].x1,
-                self.rooms[i + 1].x1,
-                self.rooms[i + 1].y1,
-            );
-        }
     }
 
     pub fn fill(&mut self, tile: TileType) {
@@ -56,7 +44,7 @@ impl MapBuilder {
             if !overlap {
                 room.for_each(|p| {
                     if p.x > 0 && p.x < SCREEN_WIDTH && p.y > 0 && p.y < SCREEN_HEIGHT {
-                        let index = Map::index_from_coordinates(p);
+                        let index = map_idx(p.x, p.y);
                         self.map.tiles[index] = TileType::Floor;
                     }
                 });

@@ -4,7 +4,7 @@ const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum TileType {
-    WALL,
+    Wall,
     Floor,
 }
 
@@ -12,14 +12,14 @@ pub struct Map {
     pub tiles: Vec<TileType>,
 }
 
-impl Map {
-    pub fn index_from_coordinates(p: Point) -> usize {
-        ((SCREEN_WIDTH * p.y) + p.x) as usize
-    }
+pub fn map_idx(x: i32, y: i32) -> usize {
+    ((y * SCREEN_WIDTH) + x) as usize
+}
 
+impl Map {
     pub fn try_index(&self, p: Point) -> Option<usize> {
         if self.in_bounds(p) {
-            Some(Map::index_from_coordinates(p))
+            Some(map_idx(p.x, p.y))
         } else {
             None
         }
@@ -36,8 +36,8 @@ impl Map {
     }
 
     pub fn can_enter_in_tile(&self, point: Point) -> bool {
-        let index = Map::index_from_coordinates(point);
-        self.in_bounds(point) && self.tiles[index] != TileType::WALL
+        let index = map_idx(point.x, point.y);
+        self.in_bounds(point) && self.tiles[index] != TileType::Wall
     }
 
     pub fn new() -> Self {
@@ -46,19 +46,33 @@ impl Map {
         }
     }
 
-    pub fn render(&self, ctx: &mut BTerm) {
-        for y in 0..SCREEN_HEIGHT {
-            for x in 0..SCREEN_WIDTH {
-                let index = Map::index_from_coordinates(Point::new(x, y));
-                let current_tile = self.tiles[index];
-                match current_tile {
-                    TileType::Floor => {
-                        ctx.set(x, y, YELLOW, BLACK, to_cp437('.'));
+    pub fn render(&self, ctx: &mut BTerm, camera: &Camera) {
+        ctx.set_active_console(0);
+        for y in camera.top_y..camera.bottom_y {
+            for x in camera.left_x..camera.right_x {
+                if self.in_bounds(Point::new(x, y)) {
+                    let idx = map_idx(x, y);
+                    match self.tiles[idx] {
+                        TileType::Floor => {
+                            ctx.set(
+                                x - camera.left_x,
+                                y - camera.top_y,
+                                WHITE,
+                                BLACK,
+                                to_cp437('.'),
+                            );
+                        }
+                        TileType::Wall => {
+                            ctx.set(
+                                x - camera.left_x,
+                                y - camera.top_y,
+                                WHITE,
+                                BLACK,
+                                to_cp437('#'),
+                            );
+                        }
                     }
-                    TileType::WALL => {
-                        ctx.set(x, y, GREEN, BLACK, to_cp437('#'));
-                    }
-                };
+                }
             }
         }
     }
@@ -70,9 +84,9 @@ mod tests {
 
     #[test]
     fn test_extrac_tile_index_from_coordinate() {
-        assert_eq!(Map::index_from_coordinates(Point::new(0, 0)), 0);
-        assert_eq!(Map::index_from_coordinates(Point::new(20, 0)), 20);
-        assert_eq!(Map::index_from_coordinates(Point::new(0, 1)), 80);
+        assert_eq!(Map::map_idx(Point::new(0, 0)), 0);
+        assert_eq!(Map::map_idx(Point::new(20, 0)), 20);
+        assert_eq!(Map::map_idx(Point::new(0, 1)), 80);
     }
     #[test]
     fn test_extrac_coordinates_from_index() {
@@ -85,7 +99,7 @@ mod tests {
     #[test]
     fn test_can_enter_in_tile() {
         let mut map = Map::new();
-        map.tiles[0] = TileType::WALL;
+        map.tiles[0] = TileType::Wall;
         assert_eq!(map.can_enter_in_tile(Point::new(0, 0)), false);
         assert_eq!(map.can_enter_in_tile(Point::new(1, 0)), true);
     }
