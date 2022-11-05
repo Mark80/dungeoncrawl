@@ -14,7 +14,7 @@ pub fn map_render(#[resource] map: &Map, #[resource] camera: &Camera) {
                     TileType::Wall => to_cp437('.'),
                     TileType::Floor => to_cp437('#'),
                 };
-                draw_batch.set(point - offset, ColorPair::new(BLACK, WHITE), glyph);
+                draw_batch.set(point - offset, ColorPair::new(WHITE, BLACK), glyph);
             }
         }
     }
