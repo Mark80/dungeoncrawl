@@ -1,10 +1,12 @@
 use crate::prelude::*;
 const NUM_ROOMS: usize = 20;
+const NUM_ENEMIES: usize = 20;
 
 pub struct MapBuilder {
     pub map: Map,
     pub rooms: Vec<Rect>,
     pub player_start_point: Point,
+    pub enemies_start_points: Vec<Point>,
 }
 
 impl MapBuilder {
@@ -13,11 +15,13 @@ impl MapBuilder {
             map: Map::new(),
             rooms: Vec::new(),
             player_start_point: Point::zero(),
+            enemies_start_points: Vec::new(),
         };
 
         mb.fill(TileType::Wall);
         mb.build_random_rooms(rng);
         mb.player_start_point = mb.rooms[0].center();
+        mb.enemies_start_points = mb.rooms.iter().map(|room| room.center()).collect();
         mb.build_corridors(rng);
         mb
     }

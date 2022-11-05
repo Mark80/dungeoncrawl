@@ -37,6 +37,12 @@ impl State {
         let builder = MapBuilder::new(rnd);
         let mut world = World::default();
         spawn_player(&mut world, builder.player_start_point);
+        builder
+            .rooms
+            .iter()
+            .skip(1)
+            .map(|r| r.center())
+            .for_each(|pos| spawn_enemy(&mut world, rnd, pos));
         let camera = Camera::new(builder.player_start_point);
         let mut resources = Resources::default();
         resources.insert(builder.map);

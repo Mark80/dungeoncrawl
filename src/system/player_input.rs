@@ -17,11 +17,12 @@ pub fn player_input(
             VirtualKeyCode::Down => Point::new(0, 1),
             _ => Point::new(0, 0),
         };
-        if delta.x != 0 && delta.y != 0 {
+        if delta.x != 0 || delta.y != 0 {
             let mut players = <&mut Point>::query().filter(component::<Player>());
             players.iter_mut(world).for_each(|position| {
                 let destination = *position + delta;
                 if map.can_enter_in_tile(destination) {
+                    *position = destination;
                     camera.on_player_move(destination);
                 }
             })

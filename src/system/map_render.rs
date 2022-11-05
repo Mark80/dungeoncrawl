@@ -11,8 +11,8 @@ pub fn map_render(#[resource] map: &Map, #[resource] camera: &Camera) {
             if map.in_bounds(point) {
                 let index = map_idx(x, y);
                 let glyph = match map.tiles[index] {
-                    TileType::Wall => to_cp437('.'),
-                    TileType::Floor => to_cp437('#'),
+                    TileType::Wall => to_cp437('#'),
+                    TileType::Floor => to_cp437('.'),
                 };
                 draw_batch.set(point - offset, ColorPair::new(WHITE, BLACK), glyph);
             }
