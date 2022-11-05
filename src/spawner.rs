@@ -14,6 +14,7 @@ pub fn spawn_player(world: &mut World, player_position: Point) {
 pub fn spawn_enemy(world: &mut World, rng: &mut RandomNumberGenerator, position: Point) {
     world.push((
         Enemy,
+        MoveRandomly,
         position,
         Render {
             color: ColorPair::new(WHITE, BLACK),
