@@ -25,12 +25,6 @@ impl Map {
         }
     }
 
-    pub fn coordinates_from_index(index: usize) -> Point {
-        let y = index as i32 / SCREEN_WIDTH;
-        let x = index as i32 % SCREEN_WIDTH;
-        Point::new(x, y)
-    }
-
     pub fn in_bounds(&self, point: Point) -> bool {
         point.x >= 0 && point.y >= 0 && point.x < SCREEN_WIDTH && point.y < SCREEN_HEIGHT
     }
