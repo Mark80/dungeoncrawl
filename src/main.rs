@@ -1,9 +1,9 @@
 mod camera;
 mod components;
+mod entity_spawner;
 mod map;
 mod map_builder;
-mod spawner;
-mod system;
+mod systems;
 mod turn_state;
 
 mod prelude {
@@ -18,10 +18,10 @@ mod prelude {
     pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
     pub use crate::camera::*;
     pub use crate::components::*;
+    pub use crate::entity_spawner::*;
     pub use crate::map::*;
     pub use crate::map_builder::*;
-    pub use crate::spawner::*;
-    pub use crate::system::*;
+    pub use crate::systems::*;
     pub use crate::turn_state::*;
 }
 
