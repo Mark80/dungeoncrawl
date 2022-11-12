@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::systems::entity_render::render_entity;
 
 #[system]
 #[read_component(Point)]
@@ -8,9 +7,10 @@ pub fn player_input(
     world: &mut SubWorld,
     commands: &mut CommandBuffer,
     #[resource] key: &Option<VirtualKeyCode>,
-    #[resource] camera: &mut Camera,
     #[resource] turn_state: &mut TurnState,
 ) {
+    let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
+
     if let Some(key) = *key {
         let delta = match key {
             VirtualKeyCode::Left => Point::new(-1, 0),
@@ -19,19 +19,40 @@ pub fn player_input(
             VirtualKeyCode::Down => Point::new(0, 1),
             _ => Point::new(0, 0),
         };
+
+        let (player, destination) = players
+            .iter(world)
+            .find_map(|(entity, position)| Some((*entity, *position + delta)))
+            .unwrap();
+
+        let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
+
         if delta.x != 0 || delta.y != 0 {
-            let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
-            players.iter(world).for_each(|(entity, position)| {
-                let destination = *position + delta;
+            let mut hit_something = false;
+            enemies
+                .iter(world)
+                .filter(|(entity, enemy_position)| destination == **enemy_position)
+                .for_each(|(enemy, _)| {
+                    hit_something = true;
+                    commands.push((
+                        (),
+                        WantToAttack {
+                            attacker: player,
+                            victim: *enemy,
+                        },
+                    ));
+                });
+
+            if !hit_something {
                 commands.push((
                     (),
                     WantsToMove {
-                        entity: *entity,
+                        entity: player,
                         destination,
                     },
                 ));
-                *turn_state = TurnState::PlayerTurn;
-            })
+            }
+            *turn_state = TurnState::PlayerTurn;
         }
     }
 }

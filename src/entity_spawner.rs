@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-const MAX_HEALTH: i32 = 100;
+const MAX_HEALTH: i32 = 5;
 
 pub fn spawn_player(world: &mut World, player_position: Point) {
     world.push((
