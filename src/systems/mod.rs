@@ -1,3 +1,5 @@
+mod chasing;
+mod chasing_2;
 mod collision_detection;
 mod combat;
 mod end_turn;
@@ -41,6 +43,7 @@ pub fn build_player_scheduler() -> Schedule {
 pub fn build_monster_scheduler() -> Schedule {
     Schedule::builder()
         .add_system(random_move::move_random_system())
+        .add_system(chasing::chasing_system())
         .flush()
         .add_system(combat::combat_system())
         .flush()

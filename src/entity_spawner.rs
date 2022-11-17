@@ -24,7 +24,7 @@ pub fn spawn_enemy(world: &mut World, rng: &mut RandomNumberGenerator, position:
     };
     world.push((
         Enemy,
-        MoveRandomly,
+        //MoveRandomly,
         position,
         Render {
             color: ColorPair::new(WHITE, BLACK),
@@ -35,6 +35,7 @@ pub fn spawn_enemy(world: &mut World, rng: &mut RandomNumberGenerator, position:
             current: hp,
             max: hp,
         },
+        ChasingPlayer {},
     ));
 }
 

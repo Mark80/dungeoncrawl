@@ -1,3 +1,5 @@
+extern crate core;
+
 mod camera;
 mod components;
 mod entity_spawner;
