@@ -4,10 +4,11 @@ use crate::prelude::*;
 #[read_component(Health)]
 #[read_component(Player)]
 pub fn hud(world: &SubWorld) {
-    let player_health = <&Health>::query()
-        .filter(component::<Player>())
+    let mut health_query = <&Health>::query().filter(component::<Player>()); // (1)
+    health_query.iter(world).nth(0);
+    let player_health = health_query
         .iter(world)
-        .nth(0)
+        .nth(0) // (2)
         .unwrap();
 
     let draw_batch = &mut DrawBatch::new();
