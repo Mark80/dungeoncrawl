@@ -6,6 +6,7 @@ pub struct MapBuilder {
     pub rooms: Vec<Rect>,
     pub player_start_point: Point,
     pub enemies_start_points: Vec<Point>,
+    pub amulet_position: Point,
 }
 
 impl MapBuilder {
@@ -15,6 +16,7 @@ impl MapBuilder {
             rooms: Vec::new(),
             player_start_point: Point::zero(),
             enemies_start_points: Vec::new(),
+            amulet_position: Point::zero(),
         };
 
         mb.fill(TileType::Wall);
@@ -22,6 +24,25 @@ impl MapBuilder {
         mb.player_start_point = mb.rooms[0].center();
         mb.enemies_start_points = mb.rooms.iter().map(|room| room.center()).collect();
         mb.build_corridors(rng);
+        let dijkstra_map = DijkstraMap::new(
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            &vec![mb.map.point2d_to_index(mb.player_start_point)],
+            &mb.map,
+            1024.0,
+        );
+
+        const UNREACHABLE: &f32 = &f32::MAX;
+        let far_position = dijkstra_map
+            .map
+            .iter()
+            .enumerate()
+            .filter(|(_, dist)| *dist < UNREACHABLE)
+            .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+            .unwrap()
+            .0;
+        mb.map.index_to_point2d(far_position);
+        mb.amulet_position = mb.map.index_to_point2d(far_position);
         mb
     }
 

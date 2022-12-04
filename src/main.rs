@@ -43,6 +43,8 @@ impl State {
         let builder = MapBuilder::new(rnd);
         let mut world = World::default();
         spawn_player(&mut world, builder.player_start_point);
+        spawn_amulet_of_yala(&mut world, builder.amulet_position);
+
         builder
             .rooms
             .iter()
@@ -61,6 +63,39 @@ impl State {
             input_systems: build_input_scheduler(),
             player_systems: build_player_scheduler(),
             monster_systems: build_monster_scheduler(),
+        }
+    }
+
+    fn victory(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(2);
+        ctx.print_color_centered(2, RED, BLACK, "Your quest has ended.");
+        ctx.print_color_centered(4, WHITE, BLACK, "you have found the amulet");
+        ctx.print_color_centered(5, WHITE, BLACK, "The Amulet of Yala is yours!!!!");
+        ctx.print_color_centered(
+            8,
+            YELLOW,
+            BLACK,
+            "You can always try again with a new hero.",
+        );
+        ctx.print_color_centered(9, GREEN, BLACK, "Press 1 to play again.");
+
+        if let Some(VirtualKeyCode::Key1) = ctx.key {
+            self.ecs = World::default();
+            self.resources = Resources::default();
+            let mut rng = RandomNumberGenerator::new();
+            let map_builder = MapBuilder::new(&mut rng);
+            spawn_player(&mut self.ecs, map_builder.player_start_point);
+            spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_position);
+            map_builder
+                .rooms
+                .iter()
+                .skip(1)
+                .map(|r| r.center())
+                .for_each(|pos| spawn_enemy(&mut self.ecs, &mut rng, pos));
+            self.resources.insert(map_builder.map);
+            self.resources
+                .insert(Camera::new(map_builder.player_start_point));
+            self.resources.insert(TurnState::AwaitingInput);
         }
     }
 
@@ -93,6 +128,7 @@ impl State {
             let mut rng = RandomNumberGenerator::new();
             let map_builder = MapBuilder::new(&mut rng);
             spawn_player(&mut self.ecs, map_builder.player_start_point);
+            spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_position);
             map_builder
                 .rooms
                 .iter()
@@ -129,6 +165,7 @@ impl GameState for State {
                 .monster_systems
                 .execute(&mut self.ecs, &mut self.resources),
             TurnState::GameOver => self.game_over(ctx),
+            TurnState::Victory => self.victory(ctx),
         }
         render_draw_buffer(ctx).expect("Render error");
     }

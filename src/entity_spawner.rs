@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-const MAX_HEALTH: i32 = 1;
+const MAX_HEALTH: i32 = 10;
 
 pub fn spawn_player(world: &mut World, player_position: Point) {
     world.push((
@@ -45,4 +45,17 @@ fn spawn_goblin() -> (i32, String, FontCharType) {
 
 fn spawn_orc() -> (i32, String, FontCharType) {
     (2, "Orc".to_string(), to_cp437('o'))
+}
+
+pub fn spawn_amulet_of_yala(world: &mut World, position: Point) {
+    world.push((
+        Item,
+        position,
+        AmuletOfYala,
+        Render {
+            color: ColorPair::new(WHITE, BLACK),
+            glyph: to_cp437('|'),
+        },
+        Name("Amulet of Yala".to_string()),
+    ));
 }
